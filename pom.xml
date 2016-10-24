@@ -15,6 +15,10 @@
     <name>Blazebit JBake Maven-Plugin</name>
     <url>https://github.com/Blazebit/jbake-maven-plugin</url>
     <description>A Maven plugin for building and running JBake sites</description>
+	
+	<properties>
+		<version.release.plugin>2.5.1</version.release.plugin>
+	</properties>
 
     <issueManagement>
         <system>github</system>
