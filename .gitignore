@@ -1,0 +1,8 @@
+.idea/
+*.iml
+.project
+.settings/
+.classpath
+.factorypath
+target/
+/core/impl/nbactions.xml
