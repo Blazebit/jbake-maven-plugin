@@ -18,7 +18,12 @@ package com.blazebit.jbake.mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import spark.Spark;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 
 /**
  * Builds and serves a JBake site locally.
@@ -31,7 +36,7 @@ public class ServeMojo extends WatchMojo {
     /**
      * The IP on which to serve the JBake site.
      */
-    @Parameter(property = "jbake.listenAddress", defaultValue = "127.0.0.1")
+    @Parameter(property = "jbake.listenAddress", defaultValue = "0.0.0.0")
     private String listenAddress;
 
     /**
@@ -42,27 +47,36 @@ public class ServeMojo extends WatchMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        // Shutdown hook just to be safe
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                Spark.stop();
-            }
-        });
+        final Server server = new Server();
+        ServerConnector connector = new ServerConnector(server);
+        connector.setHost(listenAddress);
+        connector.setPort(port);
+        server.setConnectors(new Connector[]{ connector });
         
+        ResourceHandler externalResourceHandler = new ResourceHandler();
+        externalResourceHandler.setResourceBase(outputDirectory.getPath());
+        externalResourceHandler.setWelcomeFiles(new String[] { "index.html" });
+        
+        HandlerCollection handlers = new HandlerCollection();
+        handlers.setHandlers(new Handler[] { externalResourceHandler });
+        server.setHandler(handlers);
+
         outputDirectory.mkdirs();
         
-        Spark.externalStaticFileLocation(outputDirectory.getPath());
-        Spark.ipAddress(listenAddress);
-        Spark.port(port);
-
-        Spark.init();
-        Spark.awaitInitialization();
+        try {
+            server.start();
+        } catch (Exception ex) {
+            throw new MojoExecutionException("Could not start server!", ex);
+        }
         
         try {
             super.execute();
         } finally {
-            Spark.stop();
+            try {
+                server.stop();
+            } catch (Exception ex) {
+                getLog().warn("Error on stopping server", ex);
+            }
         }
     }
 }
