@@ -21,6 +21,9 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Builds a JBake site and watches for changes to rebuild.
@@ -32,11 +35,26 @@ public class WatchMojo extends BuildMojo {
 
     private static final long DEFAULT_SLEEP = 1000L;
     
-    private boolean changed;
+    private Status status = Status.OK;
     private final WatcherService watcherService = new WatcherService();
+    private final Set<String> configFiles = new HashSet<String>(Arrays.asList(
+        "custom.properties",
+        "jbake.properties",
+        "default.properties"
+    ));
     
-    private void onChange() {
-        changed = true;
+    private static enum Status {
+        OK,
+        CHANGED,
+        CONFIG_CHANGED;
+    }
+    
+    private void onChange(Path path) {
+        if (path == null || configFiles.contains(path.toString())) {
+            status = Status.CONFIG_CHANGED;
+        } else {
+            status = Status.CHANGED;
+        }
     }
     
     @Override
@@ -60,22 +78,22 @@ public class WatchMojo extends BuildMojo {
 
             @Override
             public void refresh() {
-                onChange();
+                onChange(null);
             }
 
             @Override
             public void created(Path path) {
-                onChange();
+                onChange(path);
             }
 
             @Override
             public void deleted(Path path) {
-                onChange();
+                onChange(path);
             }
 
             @Override
             public void modified(Path path) {
-                onChange();
+                onChange(path);
             }
         });
         
@@ -91,10 +109,14 @@ public class WatchMojo extends BuildMojo {
                 try {
                     Thread.sleep(DEFAULT_SLEEP);
                     watcherService.processEvents();
-                    if (changed) {
+                    if (status != Status.OK) {
                         getLog().info("Refreshing");
+                        if (status == Status.CONFIG_CHANGED) {
+                            rebuild();
+                        }
+                        
                         bake();
-                        changed = false;
+                        status = Status.OK;
                     }
                 } catch (InterruptedException e) {
                     // Ctrl + C received

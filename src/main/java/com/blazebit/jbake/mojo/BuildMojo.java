@@ -105,6 +105,11 @@ public class BuildMojo extends AbstractMojo {
         }
     }
     
+    protected void rebuild() throws MojoExecutionException {
+        oven = null;
+        setup();
+    }
+    
     protected void destroy() {
         oven = null;
         

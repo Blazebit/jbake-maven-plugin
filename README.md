@@ -38,7 +38,7 @@ Just include the plugin in your build
 					</goals>
 					<configuration>
 						<properties>
-							<config.site_url>http://localhost:8820/</config.site_url>
+							<site.url>http://localhost:8820/</site.url>
 						</properties>
 					</configuration>
 				</execution>

@@ -140,12 +140,12 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-util</artifactId>
-                <version>9.3.2.v20150730</version>
+                <version>8.2.0.v20160908</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
-                <version>9.3.2.v20150730</version>
+                <version>8.2.0.v20160908</version>
             </dependency>
             
             <!-- Maven stuff -->
