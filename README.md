@@ -4,6 +4,10 @@ JBake Maven Plugin
 ==========
 A Maven plugin for building and running JBake sites.
 
+This plugin is separate from [ingenieux's plugin](https://github.com/ingenieux/jbake-maven-plugin) although it was inspired by it.
+
+The minimum requirements are Maven 3.0.0 and JDK 7.
+
 What is it?
 ===========
 
@@ -34,7 +38,7 @@ Just include the plugin in your build
 				<execution>
 					<phase>generate-resources</phase>
 					<goals>
-						<goal>generate</goal>
+						<goal>build</goal>
 					</goals>
 					<configuration>
 						<properties>
