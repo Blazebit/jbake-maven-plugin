@@ -80,17 +80,19 @@
         </dependency>
         <dependency>
             <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-graphdb</artifactId>
-            <version>2.2.15</version>
+            <artifactId>orientdb-core</artifactId>
+            <version>2.2.37</version>
         </dependency>
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctorj</artifactId>
         </dependency>
+        -->
         
         <!-- Jetty stuff -->
         <dependency>
@@ -135,7 +137,7 @@
             <dependency>
                 <groupId>org.jbake</groupId>
                 <artifactId>jbake-core</artifactId>
-                <version>2.6.0</version>
+                <version>2.6.4</version>
             </dependency>
             <dependency>
                 <groupId>org.freemarker</groupId>

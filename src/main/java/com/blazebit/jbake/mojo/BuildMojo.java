@@ -26,7 +26,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.jbake.app.ConfigUtil;
+import org.jbake.app.configuration.DefaultJBakeConfiguration;
+import org.jbake.app.configuration.JBakeConfiguration;
+import org.jbake.app.configuration.JBakeConfigurationFactory;
 import org.jbake.app.Oven;
 
 import java.io.File;
@@ -97,8 +99,7 @@ public class BuildMojo extends AbstractMojo {
         
         try {
             Orient.instance().startup();
-            this.oven = new Oven(inputDirectory, outputDirectory, createConfiguration(), clearCache);
-            oven.setupPaths();
+            this.oven = new Oven(createConfiguration());
         } catch (Throwable ex) {
             destroy();
             throw new MojoExecutionException("Failure when running: ", ex);
@@ -120,26 +121,28 @@ public class BuildMojo extends AbstractMojo {
         }
     }
 
-    protected CompositeConfiguration createConfiguration() throws ConfigurationException {
+    protected JBakeConfiguration createConfiguration() throws ConfigurationException {
         final CompositeConfiguration config = new CompositeConfiguration();
 
         if (properties != null) {
             config.addConfiguration(new MapConfiguration(properties));
         }
         config.addConfiguration(new MapConfiguration(project.getProperties()));
-        config.addConfiguration(ConfigUtil.load(inputDirectory));
-        
+
+        DefaultJBakeConfiguration jbakeConfig = (new JBakeConfigurationFactory())
+            .createDefaultJbakeConfiguration(inputDirectory, outputDirectory, clearCache);
+        jbakeConfig.getCompositeConfiguration().addConfiguration(config);
+ 
         if (getLog().isDebugEnabled()) {
             getLog().debug("Configuration:");
 
-            Iterator<String> iter = config.getKeys();
+            Iterator<String> iter = jbakeConfig.getKeys();
             while (iter.hasNext()) {
                 String key = iter.next();
-                getLog().debug(key + ": " + config.getString(key));
+                getLog().debug(key + ": " + jbakeConfig.get(key));
             }
         }
 
-        return config;
+        return jbakeConfig;
     }
-
 }
