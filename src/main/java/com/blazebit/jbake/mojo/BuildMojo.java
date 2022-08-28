@@ -15,10 +15,7 @@
  */
 package com.blazebit.jbake.mojo;
 
-import com.orientechnologies.orient.core.Orient;
-
 import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -26,10 +23,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.jbake.app.Oven;
 import org.jbake.app.configuration.DefaultJBakeConfiguration;
 import org.jbake.app.configuration.JBakeConfiguration;
 import org.jbake.app.configuration.JBakeConfigurationFactory;
-import org.jbake.app.Oven;
 
 import java.io.File;
 import java.util.Iterator;
@@ -98,7 +95,6 @@ public class BuildMojo extends AbstractMojo {
         }
         
         try {
-            Orient.instance().startup();
             this.oven = new Oven(createConfiguration());
         } catch (Throwable ex) {
             destroy();
@@ -113,36 +109,29 @@ public class BuildMojo extends AbstractMojo {
     
     protected void destroy() {
         oven = null;
-        
-        try {
-            Orient.instance().shutdown();
-        } catch (Exception e) {
-            getLog().warn("Error on shutdown", e);
-        }
     }
 
-    protected JBakeConfiguration createConfiguration() throws ConfigurationException {
+    protected JBakeConfiguration createConfiguration() throws Exception {
         final CompositeConfiguration config = new CompositeConfiguration();
+        final JBakeConfigurationFactory jBakeConfigurationFactory = new JBakeConfigurationFactory();
 
         if (properties != null) {
             config.addConfiguration(new MapConfiguration(properties));
         }
         config.addConfiguration(new MapConfiguration(project.getProperties()));
-
-        DefaultJBakeConfiguration jbakeConfig = (new JBakeConfigurationFactory())
-            .createDefaultJbakeConfiguration(inputDirectory, outputDirectory, clearCache);
-        jbakeConfig.getCompositeConfiguration().addConfiguration(config);
- 
+        config.addConfiguration(((DefaultJBakeConfiguration) jBakeConfigurationFactory.getConfigUtil().loadConfig(inputDirectory)).getCompositeConfiguration());
+        
         if (getLog().isDebugEnabled()) {
             getLog().debug("Configuration:");
 
-            Iterator<String> iter = jbakeConfig.getKeys();
+            Iterator<String> iter = config.getKeys();
             while (iter.hasNext()) {
                 String key = iter.next();
-                getLog().debug(key + ": " + jbakeConfig.get(key));
+                getLog().debug(key + ": " + config.getString(key));
             }
         }
 
-        return jbakeConfig;
+        return jBakeConfigurationFactory.createDefaultJbakeConfiguration(inputDirectory, outputDirectory, config, clearCache);
     }
+
 }
