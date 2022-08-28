@@ -4,7 +4,9 @@ JBake Maven Plugin
 ==========
 A Maven plugin for building and running JBake sites.
 
-This plugin is separate from [ingenieux's plugin](https://github.com/ingenieux/jbake-maven-plugin) although it was inspired by it.
+This plugin is separate from [ingenieux's plugin](https://github.com/ingenieux/jbake-maven-plugin), although it was inspired by it.
+Until the [pull request for allowing configuration overrides](https://github.com/jbake-org/jbake/pull/764) is merged and the 2.7 version of the official plugin is released,
+this plugin can be seen as a replacement for the [retired plugin](https://github.com/jbake-org/jbake-maven-plugin).
 
 The minimum requirements are Maven 3.0.0 and JDK 7.
 
@@ -33,7 +35,7 @@ Just include the plugin in your build
 		<plugin>
 			<groupId>com.blazebit</groupId>
 			<artifactId>jbake-maven-plugin</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 			<executions>
 				<execution>
 					<phase>generate-resources</phase>
